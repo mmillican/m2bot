@@ -1,4 +1,5 @@
 using TwitchLib.Client.Interfaces;
+using TwitchLib.Client.Models;
 
 namespace M2DevBot.Web.Commands
 {
@@ -8,10 +9,10 @@ namespace M2DevBot.Web.Commands
         public string Name => "Day job info";
         public string Description => "Find out what Matt does for work";
 
-        public void Handle(ITwitchClient twitchClient, string channel, string message, string userName)
+        public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {
-            twitchClient.SendMessage(channel, 
-                @"Matt is currently a Lead Software Engineer at a large marketing 
+            twitchClient.SendMessage(chatMessage.Channel,
+                @"Matt is currently a Lead Software Engineer at a large marketing
                 firm, leading their internal app team.");
         }
     }

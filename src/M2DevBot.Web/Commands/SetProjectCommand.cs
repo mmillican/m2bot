@@ -2,13 +2,12 @@ using System.Text.RegularExpressions;
 using M2DevBot.Web.Services;
 using Microsoft.Extensions.Logging;
 using TwitchLib.Client.Interfaces;
+using TwitchLib.Client.Models;
 
 namespace M2DevBot.Web.Commands
 {
     public class SetProjectCommand : IChatCommand
     {
-        private const string MYSELF = "m2devdotnet";
-
         private readonly IProjectService _projectService;
         private readonly ILogger<SetProjectCommand> _logger;
 
@@ -25,16 +24,15 @@ namespace M2DevBot.Web.Commands
             _logger = logger;
         }
 
-        public void Handle(ITwitchClient twitchClient, string channel, string message, string userName)
+        public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {
-            // TODO: only let host and moderators set project/todos
-            if (userName != MYSELF)
+            if (!chatMessage.IsBroadcaster && !chatMessage.IsModerator)
             {
                 return;
             }
 
             var commandRegex = new Regex(@"^\!pa\s(\w*)\s(\w*)\s(.*)$");
-            var cmdParts = commandRegex.Match(message);
+            var cmdParts = commandRegex.Match(chatMessage.Message);
 
             var commandType = cmdParts.Groups[1].Value; // Group 0 is the full match - start at index 1
             var subCommand = cmdParts.Groups[2].Value;
@@ -46,7 +44,7 @@ namespace M2DevBot.Web.Commands
             {
                 _projectService.SetProject(commandData);
 
-                twitchClient.SendWhisper(MYSELF, $"Project set to '{commandData}'");
+                twitchClient.SendWhisper(chatMessage.Username, $"Project set to '{commandData}'");
             }
             else if (commandType == "todo")
             {
@@ -55,7 +53,7 @@ namespace M2DevBot.Web.Commands
                     case "add":
                         _projectService.AddTodo(commandData);
 
-                        twitchClient.SendWhisper(MYSELF, $"Todo item added for '{commandData}'");
+                        twitchClient.SendWhisper(chatMessage.Username, $"Todo item added for '{commandData}'");
                         break;
                     case "complete":
                         if (!int.TryParse(commandData, out var completeId))
@@ -65,7 +63,7 @@ namespace M2DevBot.Web.Commands
 
                         _projectService.CompleteTodo(completeId);
 
-                        twitchClient.SendWhisper(MYSELF, $"Todo #{completeId} marked as complete");
+                        twitchClient.SendWhisper(chatMessage.Username, $"Todo #{completeId} marked as complete");
                         break;
                     case "remove":
                         if (!int.TryParse(commandData, out var removeId))
@@ -74,7 +72,7 @@ namespace M2DevBot.Web.Commands
                         }
 
                         _projectService.RemoveTodo(removeId);
-                        twitchClient.SendWhisper(MYSELF, $"Todo #{removeId} removed");
+                        twitchClient.SendWhisper(chatMessage.Username, $"Todo #{removeId} removed");
                         break;
                 }
             }

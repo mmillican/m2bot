@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using TwitchLib.Client.Interfaces;
+using TwitchLib.Client.Models;
 
 namespace M2DevBot.Web.Commands
 {
@@ -20,7 +21,7 @@ namespace M2DevBot.Web.Commands
             _serviceProvider = serviceProvider;
         }
 
-        public void Handle(ITwitchClient twitchClient, string channel, string message, string userName) 
+        public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {
             var commands = _serviceProvider.GetServices<IChatCommand>()
                 .Where(x => x.Trigger != "help")
@@ -35,7 +36,7 @@ namespace M2DevBot.Web.Commands
 
             var response = string.Join(" // ", commandDescriptions);
 
-            twitchClient.SendMessage(channel, response);
+            twitchClient.SendMessage(chatMessage.Channel, response);
         }
     }
 }

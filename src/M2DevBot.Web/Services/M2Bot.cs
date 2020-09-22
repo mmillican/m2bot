@@ -103,7 +103,7 @@ namespace M2DevBot.Web.Services
                 var cmd = _chatCommands.FirstOrDefault(x => x.Trigger == cmdTrigger);
                 if (cmd != null)
                 {
-                    cmd.Handle(_client, e.ChatMessage.Channel, e.ChatMessage.Message, e.ChatMessage.Username);
+                    cmd.Handle(_client, e.ChatMessage);
                 }
             }
             else

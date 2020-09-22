@@ -1,4 +1,5 @@
 using TwitchLib.Client.Interfaces;
+using TwitchLib.Client.Models;
 
 namespace M2DevBot.Web.Commands
 {
@@ -7,10 +8,10 @@ namespace M2DevBot.Web.Commands
         public string Trigger => "blog";
         public string Name => "Blog URL";
         public string Description => "Get the link to Matt's blog";
-        
-        public void Handle(ITwitchClient twitchClient, string channel, string message, string userName)
+
+        public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {
-            twitchClient.SendMessage(channel, "You can find M2's blog at https://mattmillican.com. PS. Remind him to write more!");
+            twitchClient.SendMessage(chatMessage.Channel, "You can find M2's blog at https://mattmillican.com. PS. Remind him to write more!");
         }
     }
 }

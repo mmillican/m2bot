@@ -1,5 +1,6 @@
 using M2DevBot.Web.Services;
 using TwitchLib.Client.Interfaces;
+using TwitchLib.Client.Models;
 
 namespace M2DevBot.Web.Commands
 {
@@ -16,11 +17,11 @@ namespace M2DevBot.Web.Commands
             _projectService = projectService;
         }
 
-        public void Handle(ITwitchClient twitchClient, string channel, string message, string userName)
+        public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {
             var project = _projectService.GetProjectName();
 
-            twitchClient.SendMessage(channel, $"M2 is currently working on {project}");
+            twitchClient.SendMessage(chatMessage.Channel, $"M2 is currently working on {project}");
         }
     }
 }

@@ -1,4 +1,5 @@
 using TwitchLib.Client.Interfaces;
+using TwitchLib.Client.Models;
 
 namespace M2DevBot.Web.Commands
 {
@@ -8,7 +9,7 @@ namespace M2DevBot.Web.Commands
 
         string Name { get; }
         string Description { get; }
-        
-        void Handle(ITwitchClient twitchClient, string channel, string message, string userName);
+
+        void Handle(ITwitchClient twitchClient, ChatMessage chatMessage);
     }
 }
