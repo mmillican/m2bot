@@ -39,7 +39,7 @@ namespace M2DevBot.Web.Services
             };
 
             var socketClient = new WebSocketClient(twitchClientOptions);
-            _client = new TwitchClient(socketClient);   
+            _client = new TwitchClient(socketClient);
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
@@ -47,12 +47,13 @@ namespace M2DevBot.Web.Services
             var connectionCreds = new ConnectionCredentials(_twitchConfig.Username, _twitchConfig.AccessToken);
             _client.Initialize(connectionCreds, _twitchConfig.ChannelName);
 
+            _client.OnConnected += Client_OnConnected;
             _client.OnJoinedChannel += JoinedChannel;
             _client.OnMessageReceived += Client_OnMessageReceived;
-            _client.OnConnected += Client_OnConnected;
-            
+            _client.OnUserJoined += Client_UserJoined;
+
             _client.Connect();
-            
+
             _logger.LogInformation($"Connected to {_twitchConfig.ChannelName} = {_client.IsConnected}");
 
             return Task.CompletedTask;
@@ -66,12 +67,28 @@ namespace M2DevBot.Web.Services
         private void JoinedChannel(object sender, OnJoinedChannelArgs e)
         {
             _logger.LogInformation("Joined channel " + e.Channel);
-            _client.SendMessage(e.Channel, "Hello friends!");
+            // _client.SendMessage(e.Channel, "Hello friends!");
+        }
+
+        private void Client_UserJoined(object sender, OnUserJoinedArgs e)
+        {
+            if (IsUserIgnored(e.Username))
+            {
+                _logger.LogDebug($"User ${e.Username} joined but is in the ignore list.");
+                return;
+            }
+
+            _logger.LogInformation($"{e.Username} joined chat");
+            _client.SendMessage(e.Channel, $"Welcome {e.Username}!");
         }
 
         private void Client_OnMessageReceived(object sender, OnMessageReceivedArgs e)
         {
-            // TODO: Ignore messages from bots (self and other)
+            if (IsUserIgnored(e.ChatMessage.Username))
+            {
+                _logger.LogDebug($"Messaged received from user ${e.ChatMessage.Username} but is in the ignore list.");
+                return;
+            }
 
             if (e.ChatMessage.Message.StartsWith('!'))
             {
@@ -89,6 +106,9 @@ namespace M2DevBot.Web.Services
                 _logger.LogInformation($"Chat message received from {e.ChatMessage.Username}: {e.ChatMessage.Message}");
             }
         }
+
+        private bool IsUserIgnored(string username) =>
+            _twitchConfig.IgnoredUsernames.Any() && _twitchConfig.IgnoredUsernames.Contains(username.ToLower());
 
         public Task StopAsync(CancellationToken cancellationToken)
         {
