@@ -95,6 +95,11 @@ namespace M2DevBot.Web.Services
                 _logger.LogInformation($"Chat command received from {e.ChatMessage.Username}: {e.ChatMessage.Message}");
 
                 var cmdTrigger = e.ChatMessage.Message.TrimStart('!').ToLower();
+                if (cmdTrigger.Contains(" "))
+                {
+                    cmdTrigger = cmdTrigger.Split(' ').First();
+                }
+
                 var cmd = _chatCommands.FirstOrDefault(x => x.Trigger == cmdTrigger);
                 if (cmd != null)
                 {

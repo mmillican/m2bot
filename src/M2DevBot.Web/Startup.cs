@@ -26,6 +26,8 @@ namespace M2DevBot.Web
             services.AddHostedService<M2Bot>();
 
             services.AddBotCommands();
+
+            services.AddTransient<IProjectService, ProjectService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
