@@ -13,11 +13,11 @@ namespace M2DevBot.Web.Commands
         private readonly IProjectService _projectService;
         private readonly ILogger<SetProjectCommand> _logger;
 
-        public string Trigger => "pa"; // stands for "project admin"
+        public string Trigger => "set-project";
 
-        public string Name => "Set Current Project/TODOs";
+        public string Name => "Set Current Project";
 
-        public string Description => "Set the current project and todo items";
+        public string Description => "Set the current project";
 
         public SetProjectCommand(IProjectService projectService,
             ILogger<SetProjectCommand> logger)
@@ -33,57 +33,14 @@ namespace M2DevBot.Web.Commands
                 return;
             }
 
-            var commandRegex = new Regex(@"^\!pa\s(\w*)\s(\w*)(?:\s([\w\s]+))?$");
+            var commandRegex = new Regex(@"^\!set-project\s([\w\s]+)$");
             var cmdParts = commandRegex.Match(chatMessage.Message);
 
-            var commandType = cmdParts.Groups[1].Value; // Group 0 is the full match - start at index 1
-            var subCommand = cmdParts.Groups[2].Value;
-            var commandData = cmdParts.Groups[3]?.Value;
+            var commandData = cmdParts.Groups[1]?.Value; // Group 0 is the full match - start at index 1
 
-            _logger.LogInformation($"Project command received: type = '{commandType}' - command = '{subCommand}'");
+            _logger.LogInformation($"Set project command received - Project = {commandData}");
 
-            if (commandType == "project" && subCommand == "set")
-            {
-                _projectService.SetProject(commandData);
-            }
-            else if (commandType == "todo")
-            {
-                switch(subCommand)
-                {
-                    case "add":
-                        _projectService.AddTodo(commandData);
-                        break;
-                    case "complete":
-                        if (!int.TryParse(commandData, out var completeId))
-                        {
-                            return;
-                        }
-
-                        _projectService.CompleteTodo(completeId, true);
-                        break;
-                    case "resume":
-                        if (!int.TryParse(commandData, out var uncompleteId))
-                        {
-                            return;
-                        }
-
-                        _projectService.CompleteTodo(uncompleteId, false);
-                        break;
-                    case "remove":
-                        if (!int.TryParse(commandData, out var removeId))
-                        {
-                            return;
-                        }
-
-                        _projectService.RemoveTodo(removeId);
-                        break;
-                    case "clear":
-                        _projectService.ClearTodos();
-                        break;
-                }
-
-                var items = _projectService.GetTodoItems();
-            }
+            _projectService.SetProject(commandData);
         }
     }
 }
