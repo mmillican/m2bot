@@ -1,4 +1,5 @@
 using M2DevBot.Web.Config;
+using M2DevBot.Web.Hubs;
 using M2DevBot.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -21,6 +22,7 @@ namespace M2DevBot.Web
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddRazorPages();
+            services.AddSignalR();
 
             services.Configure<TwitchConfig>(Configuration.GetSection("Twitch"));
             services.AddHostedService<M2Bot>();
@@ -54,6 +56,7 @@ namespace M2DevBot.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapRazorPages();
+                endpoints.MapHub<BotHub>("/bothub");
             });
         }
     }

@@ -1,0 +1,99 @@
+@page
+@using System.Text.Json;
+@using System.Collections.Generic;
+@using M2DevBot.Web.Models
+@model TodoListWidgetModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Stream To-do";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - M2DevBot.Web</title>
+    <link rel="stylesheet" href="~/css/todo-widget.css" />
+</head>
+<body>
+    <div class="todo-list">
+        <h1 id="project-name">
+            {{ projectName }}
+        </h1>
+        <ul id="todo-items">
+            <li class="item" v-for="item in sortedItems" :key="item.name" :class="{completed: item.isComplete}">
+                {{ item.name }}
+            </li>
+        </ul>
+    </div>
+</body>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    var app = new Vue({
+        el: '.todo-list',
+        data: {
+            projectName: '@Model.ProjectName',
+            items: @Html.Raw(JsonSerializer.Serialize(Model.TodoItems, typeof(List<TodoItem>),
+                new JsonSerializerOptions
+                {
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                }))
+        },
+        computed: {
+            sortedItems: function() {
+                return this.items.sort((a, b) => a.order - b.order);
+            }
+        },
+        created: function() {
+            this.startSignalR();
+        },
+        methods: {
+            startSignalR: function() {
+                var that = this;
+                var hubConnection = new signalR.HubConnectionBuilder()
+                    .withUrl("/bothub")
+                    .build();
+
+                hubConnection.on('ProjectUpdated', function(data) {
+                    console.log('project updated', data);
+                    that.projectName = data;
+                });
+
+                hubConnection.on('TodoItemAdded', function(data) {
+                    console.log('TodoItemAdded', data);
+                    that.items.push(data);
+                });
+
+                hubConnection.on('TodoItemRemoved', function(data) {
+                    console.log('TodoItemRemoved', data);
+
+                    var itemIndex = that.items.findIndex(x => x.order === data.order);
+                    that.items.splice(itemIndex, 1);
+                });
+
+                hubConnection.on('TodoItemStatusChanged', function(data) {
+                    console.log('TodoItemStatusChanged', data);
+
+                    var item = that.items.find(x => x.order === data.order);
+                    item.isComplete = data.isComplete;
+                });
+
+                hubConnection.on('TodosCleared', function() {
+                    console.log('TodosCleared');
+
+                    that.items = [];
+                });
+
+                hubConnection.start().then(function() {
+                    console.log('Hub connections started');
+                }).catch(function(err) {
+                    console.log('Error connecting to hub', err);
+                });
+            }
+        }
+    });
+</script>
+</html>

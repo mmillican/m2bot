@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using M2DevBot.Web.Hubs;
 using M2DevBot.Web.Models;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 
 namespace M2DevBot.Web.Services
@@ -13,20 +16,25 @@ namespace M2DevBot.Web.Services
         string GetProjectName();
 
         void SetProject(string name);
+        List<TodoItem> GetTodoItems();
 
         void AddTodo(string name);
-        void CompleteTodo(int number);
+        void CompleteTodo(int number, bool isComplete);
         void RemoveTodo(int number);
+        void ClearTodos();
     }
 
     public class ProjectService : IProjectService
     {
-        private const string FILE_NAME = "C:\\_Dev\\projects.json";
+        private const string FILE_NAME = "C:\\_Stream\\projects.json";
 
+        private readonly IHubContext<BotHub, IBotClient> _hubContext;
         private readonly ILogger<ProjectService> _logger;
 
-        public ProjectService(ILogger<ProjectService> logger)
+        public ProjectService(IHubContext<BotHub, IBotClient> hubContext,
+            ILogger<ProjectService> logger)
         {
+            _hubContext = hubContext;
             _logger = logger;
         }
 
@@ -34,6 +42,12 @@ namespace M2DevBot.Web.Services
         {
             var project = GetProject();
             return project?.Name ?? "Working on ASP.NET Core + Vue.js Things";
+        }
+
+        public List<TodoItem> GetTodoItems()
+        {
+            var project = GetProject();
+            return project?.TodoItems ?? new List<TodoItem>();
         }
 
         public void SetProject(string name)
@@ -44,19 +58,34 @@ namespace M2DevBot.Web.Services
             project.Name = name;
 
             Save(project);
+
+            _hubContext.Clients.All.ProjectUpdated(project.Name);
         }
 
-        public void AddTodo(string name)
+        public void AddTodo(string itemName)
         {
-            _logger.LogInformation($"Add todo {name}");
-
             var project = GetProject();
-            project.TodoItems.Add(new TodoItem { Name = name });
+
+            var nextSort = project.TodoItems != null && project.TodoItems.Any()
+                ? project.TodoItems.Max(x => x.Order) + 1
+                : 1;
+
+            var item = new TodoItem
+            {
+                Name = itemName,
+                Order = nextSort
+            };
+
+            _logger.LogInformation($"Add todo {item.Name}");
+
+            project.TodoItems.Add(item);
 
             Save(project);
+
+            _hubContext.Clients.All.TodoItemAdded(item);
         }
 
-        public void CompleteTodo(int number)
+        public void CompleteTodo(int number, bool isComplete)
         {
             var project = GetProject();
 
@@ -67,9 +96,27 @@ namespace M2DevBot.Web.Services
                 return;
             }
 
-            project.TodoItems[itemIndex].IsComplete = true;
+            var item = project.TodoItems[itemIndex];
+            if (item == null)
+            {
+                return;
+            }
+
+            item.IsComplete = isComplete;
 
             Save(project);
+
+            _hubContext.Clients.All.TodoItemStatusChanged(item);
+        }
+
+        public void ClearTodos()
+        {
+            var project = GetProject();
+            project.TodoItems.Clear();
+
+            Save(project);
+
+            _hubContext.Clients.All.TodosCleared();
         }
 
         public void RemoveTodo(int number)
@@ -83,9 +130,17 @@ namespace M2DevBot.Web.Services
                 return;
             }
 
-            project.TodoItems.RemoveAt(itemIndex);
+            var item = project.TodoItems[itemIndex];
+            if (item == null)
+            {
+                return;
+            }
+
+            project.TodoItems.Remove(item);
 
             Save(project);
+
+            _hubContext.Clients.All.TodoItemRemoved(item);
         }
 
         public void Save(Project project)
