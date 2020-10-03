@@ -34,7 +34,7 @@ namespace M2DevBot.Web.Commands
                 return;
             }
 
-            var commandRegex = new Regex(@"^\!set-project\s([\w\s]+)$");
+            var commandRegex = new Regex(@"^\!set-project\s([\w\s.#+\/&]+)$");
             var cmdParts = commandRegex.Match(chatMessage.Message);
 
             var commandData = cmdParts.Groups[1]?.Value; // Group 0 is the full match - start at index 1
