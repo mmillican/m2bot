@@ -8,6 +8,7 @@ namespace M2DevBot.Web.Commands
         public string Trigger => "job";
         public string Name => "Day job info";
         public string Description => "Find out what Matt does for work";
+        public bool ShowInHelp => true;
 
         public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {

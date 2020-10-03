@@ -8,6 +8,7 @@ namespace M2DevBot.Web.Commands
         public string Trigger => "blog";
         public string Name => "Blog URL";
         public string Description => "Get the link to Matt's blog";
+        public bool ShowInHelp => true;
 
         public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {

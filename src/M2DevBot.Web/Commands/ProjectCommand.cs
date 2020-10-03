@@ -11,6 +11,7 @@ namespace M2DevBot.Web.Commands
         public string Trigger => "project";
         public string Name => "Project Info";
         public string Description => "Get information about M2's current project";
+        public bool ShowInHelp => true;
 
         public ProjectCommand(IProjectService projectService)
         {

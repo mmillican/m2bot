@@ -8,6 +8,7 @@ namespace M2DevBot.Web.Commands
         public string Trigger => "env";
         public string Name => "Environment Info";
         public string Description => "Get information about M2's environment";
+        public bool ShowInHelp => true;
 
         public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {

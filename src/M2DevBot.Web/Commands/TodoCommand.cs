@@ -17,6 +17,7 @@ namespace M2DevBot.Web.Commands
         public string Name => "Manage Todos";
 
         public string Description => "Manage the stream todo list";
+        public bool ShowInHelp => false;
 
         public TodoCommand(IProjectService projectService,
             ILogger<TodoCommand> logger)

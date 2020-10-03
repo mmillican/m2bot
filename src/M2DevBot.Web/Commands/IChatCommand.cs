@@ -10,6 +10,8 @@ namespace M2DevBot.Web.Commands
         string Name { get; }
         string Description { get; }
 
+        bool ShowInHelp { get; }
+
         void Handle(ITwitchClient twitchClient, ChatMessage chatMessage);
     }
 }

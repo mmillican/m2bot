@@ -18,6 +18,7 @@ namespace M2DevBot.Web.Commands
         public string Name => "Set Current Project";
 
         public string Description => "Set the current project";
+        public bool ShowInHelp => false;
 
         public SetProjectCommand(IProjectService projectService,
             ILogger<SetProjectCommand> logger)

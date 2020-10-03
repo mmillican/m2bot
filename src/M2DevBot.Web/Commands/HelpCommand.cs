@@ -15,6 +15,7 @@ namespace M2DevBot.Web.Commands
         public string Name => "Help";
 
         public string Description => "Get info about what commands are available.";
+        public bool ShowInHelp => false; // Don't need to show itself
 
         public HelpCommand(IServiceProvider serviceProvider)
         {
@@ -24,7 +25,7 @@ namespace M2DevBot.Web.Commands
         public void Handle(ITwitchClient twitchClient, ChatMessage chatMessage)
         {
             var commands = _serviceProvider.GetServices<IChatCommand>()
-                .Where(x => x.Trigger != "help")
+                .Where(x => x.ShowInHelp)
                 .OrderBy(x => x.Trigger);
 
             var commandDescriptions = new List<string>();
