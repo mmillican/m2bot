@@ -1,12 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 html {
-  background: #4a7cb9;
   color: #FFF;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Roboto', Arial, Helvetica, sans-serif;
   font-size: 14px;
 }
 
-h1 {
-  font-size: 1.5rem;
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.todo-list {
+  width: 246px;
+  height: 246px;
+  /* background: rgba(74, 124, 185, 0.75); */
+  background: #4a7cb9;
+  /* border: 2px solid rgba(74, 124, 185, 0.85); */
+  border: 2px solid #4a7cb9;
+}
+
+.heading {
+  background: rgba(0, 0, 0, 0.75);
+  margin: 0;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.heading h1 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+.list-wrapper {
+  padding: 10px 7px 10px 25px;
+}
+
+#todo-items {
+  padding-left: 0;
+  margin: 0;
+}
+
+#todo-items li {
+  margin-bottom: 0.5rem;
 }
 
 #todo-items .item.completed {

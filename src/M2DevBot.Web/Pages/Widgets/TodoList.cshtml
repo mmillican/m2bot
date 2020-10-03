@@ -18,14 +18,18 @@
 </head>
 <body>
     <div class="todo-list">
-        <h1 id="project-name">
-            {{ projectName }}
-        </h1>
-        <ul id="todo-items">
-            <li class="item" v-for="item in sortedItems" :key="item.name" :class="{completed: item.isComplete}">
-                {{ item.name }}
-            </li>
-        </ul>
+        <div class="heading">
+            <h1 id="project-name">
+                {{ projectName }}
+            </h1>
+        </div>
+        <div class="list-wrapper">
+            <ul id="todo-items">
+                <li class="item" v-for="item in sortedItems" :key="item.name" :class="{completed: item.isComplete}">
+                    {{ item.name }}
+                </li>
+            </ul>
+        </div>
     </div>
 </body>
 
@@ -35,7 +39,7 @@
     var app = new Vue({
         el: '.todo-list',
         data: {
-            projectName: '@Model.ProjectName',
+            projectName: '@Html.Raw(Model.ProjectName)',
             items: @Html.Raw(JsonSerializer.Serialize(Model.TodoItems, typeof(List<TodoItem>),
                 new JsonSerializerOptions
                 {
