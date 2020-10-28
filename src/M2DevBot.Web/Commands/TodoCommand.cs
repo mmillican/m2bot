@@ -33,7 +33,7 @@ namespace M2DevBot.Web.Commands
                 return;
             }
 
-            var commandRegex = new Regex(@"^\!todo\s(\w*)(?:\s([\w\s]+))?$");
+            var commandRegex = new Regex(@"^\!todo\s(\w*)(?:\s(.+))?$");
             var cmdParts = commandRegex.Match(chatMessage.Message);
 
             var command = cmdParts.Groups[1].Value; // Group 0 is the full match - start at index 1
