@@ -11,8 +11,8 @@ namespace M2DevBot.Web.Commands
     {
         private readonly IServiceProvider _serviceProvider;
 
-        public string Trigger => "help";
-        public string Name => "Help";
+        public string Trigger => "commands";
+        public string Name => "Commands List";
 
         public string Description => "Get info about what commands are available.";
         public bool ShowInHelp => false; // Don't need to show itself
